@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainSpark | Color Confusion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+
+        :root {
+            --cream: #FFF9F0;
+            --beige: #F5E6D8;
+            --light-brown: #E8D5C0;
+            --gold: #D4AF37;
+            --coffee: #A68A64;
+            --text: #3A3226;
+            --shadow: rgba(58, 50, 38, 0.1);
+            --card-bg: rgba(255, 249, 240, 0.85);
+            --red: #FF6B6B;
+            --blue: #6BB9F0;
+            --green: #7BCF7B;
+            --yellow: #FFD166;
+            --purple: #A58AFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--cream);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Фон с пузырями */
+        .bubbles-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, var(--beige), var(--cream));
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.08);
+            backdrop-filter: blur(2px);
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+        }
+
+        /* Основные стили */
+        header {
+            padding: 2rem 1rem 1rem;
+            text-align: center;
+            background: linear-gradient(to bottom, var(--cream), transparent);
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--coffee);
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .game-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--coffee);
+            margin-bottom: 1.5rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .game-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .game-area {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px var(--shadow);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--coffee));
+        }
+
+        /* Стили игры Color Confusion */
+        .color-confusion-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box {
+            background: var(--light-brown);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--coffee);
+            margin-bottom: 0.2rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .color-card {
+            width: 100%;
+            max-width: 400px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin: 1rem 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            box-shadow: 0 5px 15px var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+            user-select: none;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .color-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .color-option {
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px var(--shadow);
+            border: 2px solid transparent;
+        }
+
+        .color-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-option:active {
+            transform: translateY(1px);
+        }
+
+        .color-red { background-color: var(--red); color: white; }
+        .color-blue { background-color: var(--blue); color: white; }
+        .color-green { background-color: var(--green); color: white; }
+        .color-yellow { background-color: var(--yellow); color: var(--text); }
+        .color-purple { background-color: var(--purple); color: white; }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            background: linear-gradient(to right, var(--gold), var(--coffee));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(212, 175, 55, 0.3);
+            font-size: 1rem;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .game-btn:active {
+            transform: translateY(1px);
+        }
+
+        .game-btn.secondary {
+            background: transparent;
+            color: var(--coffee);
+            border: 2px solid var(--coffee);
+            box-shadow: none;
+        }
+
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        /* Описание игры */
+        .game-description {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .description-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--coffee);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .description-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            color: var(--coffee);
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .stat i {
+            color: var(--gold);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .color-card {
+                height: 150px;
+                font-size: 2rem;
+            }
+            
+            .color-options {
+                gap: 0.8rem;
+            }
+            
+            .color-option {
+                padding: 0.8rem 1.2rem;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .color-card {
+                height: 120px;
+                font-size: 1.5rem;
+            }
+            
+            .color-options {
+                gap: 0.5rem;
+            }
+            
+            .color-option {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Фон с пузырями -->
+    <div class="bubbles-bg" id="bubblesBg"></div>
+
+    <header>
+        <div class="logo">BrainSpark</div>
+        <h1 class="game-title">Color Confusion</h1>
+    </header>
+
+    <div class="game-container">
+        <div class="game-area">
+            <div class="color-confusion-game">
+                <div class="game-info">
+                    <div class="info-box">
+                        <div class="info-label">Уровень</div>
+                        <div class="info-value" id="level">1</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Очки</div>
+                        <div class="info-value" id="score">0</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Время</div>
+                        <div class="info-value" id="time">30</div>
+                    </div>
+                </div>
+
+                <div class="color-card" id="colorCard">
+                    Нажмите "Начать игру"
+                </div>
+
+                <div class="color-options" id="colorOptions">
+                    <!-- Варианты цветов будут добавлены через JS -->
+                </div>
+
+                <div class="game-controls">
+                    <button class="game-btn" id="startBtn">Начать игру</button>
+                    <button class="game-btn secondary" id="hintBtn" disabled>Подсказка</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-description">
+            <h2 class="description-title">О Color Confusion</h2>
+            <p>Классический тест Струпа на внимание и скорость реакции. Выбирайте цвет текста, а не то, что написано.</p>
+            
+            <div class="game-stats">
+                <div class="stat"><i class="fas fa-clock"></i> 1-3 мин/день</div>
+                <div class="stat"><i class="fas fa-chart-line"></i> Средняя сложность</div>
+                <div class="stat"><i class="fas fa-eye"></i> Внимание</div>
+            </div>
+            
+            <h3 style="color: var(--coffee); margin: 1.5rem 0 0.5rem; font-family: 'Playfair Display', serif;">Как играть:</h3>
+            <ol style="padding-left: 1.5rem; margin-bottom: 1rem;">
+                <li>Нажмите "Начать игру"</li>
+                <li>Выбирайте ЦВЕТ текста, а не само слово</li>
+                <li>Чем быстрее отвечаете, тем больше очков получаете</li>
+                <li>С каждым уровнем сложность увеличивается</li>
+            </ol>
+            
+            <h3 style="color: var(--coffee); margin: 1.5rem 0 0.5rem; font-family: 'Playfair Display', serif;">Применение в жизни:</h3>
+            <p>Тренирует внимание и способность игнорировать противоречивую информацию. Полезно для водителей, пилотов и всех, кто должен быстро обрабатывать визуальную информацию.</p>
+        </div>
+    </div>
+
+    <script>
+        // Создаем пузыри на фоне
+        function createBubbles() {
+            const bubblesBg = document.getElementById('bubblesBg');
+            const bubbleCount = window.innerWidth < 768 ? 15 : 30;
+            
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                
+                const size = Math.random() * 60 + 20;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 15 + 10;
+                
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${posX}%`;
+                bubble.style.bottom = `-${size}px`;
+                bubble.style.animationDelay = `${delay}s`;
+                bubble.style.animationDuration = `${duration}s`;
+                
+                bubblesBg.appendChild(bubble);
+            }
+        }
+
+        // Логика игры Color Confusion
+        document.addEventListener('DOMContentLoaded', function() {
+            createBubbles();
+            
+            const colorCard = document.getElementById('colorCard');
+            const colorOptions = document.getElementById('colorOptions');
+            const startBtn = document.getElementById('startBtn');
+            const hintBtn = document.getElementById('hintBtn');
+            const levelDisplay = document.getElementById('level');
+            const scoreDisplay = document.getElementById('score');
+            const timeDisplay = document.getElementById('time');
+            
+            // Цвета для игры
+            const colors = [
+                { name: 'красный', value: 'red', class: 'color-red' },
+                { name: 'синий', value: 'blue', class: 'color-blue' },
+                { name: 'зеленый', value: 'green', class: 'color-green' },
+                { name: 'желтый', value: 'yellow', class: 'color-yellow' },
+                { name: 'фиолетовый', value: 'purple', class: 'color-purple' }
+            ];
+            
+            let level = 1;
+            let score = 0;
+            let timeLeft = 30;
+            let timer = null;
+            let currentColor = null;
+            let currentText = null;
+            let gameActive = false;
+            let correctAnswers = 0;
+            
+            // Создаем кнопки цветов
+            function createColorOptions() {
+                colorOptions.innerHTML = '';
+                
+                colors.forEach(color => {
+                    const btn = document.createElement('div');
+                    btn.classList.add('color-option', color.class);
+                    btn.textContent = color.name;
+                    btn.dataset.color = color.value;
+                    
+                    btn.addEventListener('click', function() {
+                        if (!gameActive) return;
+                        checkAnswer(color.value);
+                    });
+                    
+                    colorOptions.appendChild(btn);
+                });
+            }
+            
+            // Начало игры
+            function startGame() {
+                level = 1;
+                score = 0;
+                correctAnswers = 0;
+                timeLeft = 30;
+                gameActive = true;
+                
+                updateDisplays();
+                createColorOptions();
+                startTimer();
+                generateNewColor();
+                
+                startBtn.textContent = 'Перезапустить';
+                hintBtn.disabled = false;
+            }
+            
+            // Таймер игры
+            function startTimer() {
+                if (timer) clearInterval(timer);
+                
+                timer = setInterval(function() {
+                    timeLeft--;
+                    timeDisplay.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+            }
+            
+            // Генерация нового цвета/слова
+            function generateNewColor() {
+                // Выбираем случайный цвет для текста
+                const textColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Выбираем случайное слово (может совпадать или не совпадать с цветом)
+                let wordColor;
+                if (Math.random() < 0.5 || level < 3) {
+                    // Слово соответствует цвету (легкий режим)
+                    wordColor = textColor;
+                } else {
+                    // Слово не соответствует цвету (сложный режим)
+                    const otherColors = colors.filter(c => c.value !== textColor.value);
+                    wordColor = otherColors[Math.floor(Math.random() * otherColors.length)];
+                }
+                
+                currentColor = textColor.value;
+                currentText = wordColor.name;
+                
+                // Отображаем карточку
+                colorCard.textContent = wordColor.name;
+                colorCard.style.color = textColor.value;
+                colorCard.classList.remove('shake', 'pulse');
+                void colorCard.offsetWidth; // Trigger reflow
+                colorCard.classList.add('pulse');
+            }
+            
+            // Проверка ответа
+            function checkAnswer(selectedColor) {
+                if (selectedColor === currentColor) {
+                    // Правильный ответ
+                    const timeBonus = Math.floor(timeLeft / 5) + 1;
+                    const levelBonus = level * 2;
+                    const points = 10 + timeBonus + levelBonus;
+                    
+                    score += points;
+                    correctAnswers++;
+                    
+                    // Анимация успеха
+                    colorCard.classList.remove('pulse');
+                    colorCard.classList.add('pulse');
+                    
+                    // Увеличиваем уровень после 3 правильных ответов
+                    if (correctAnswers >= 3) {
+                        level++;
+                        correctAnswers = 0;
+                    }
+                } else {
+                    // Неправильный ответ
+                    score = Math.max(0, score - 5);
+                    
+                    // Анимация ошибки
+                    colorCard.classList.remove('pulse');
+                    colorCard.classList.add('shake');
+                }
+                
+                updateDisplays();
+                generateNewColor();
+            }
+            
+            // Подсказка
+            function showHint() {
+                if (!gameActive) return;
+                
+                // Подсвечиваем правильный ответ
+                const correctOption = colorOptions.querySelector(`[data-color="${currentColor}"]`);
+                correctOption.style.boxShadow = '0 0 0 3px var(--gold)';
+                
+                // Через секунду убираем подсветку
+                setTimeout(() => {
+                    correctOption.style.boxShadow = '';
+                }, 1000);
+                
+                // Штраф за подсказку
+                score = Math.max(0, score - 10);
+                updateDisplays();
+            }
+            
+            // Обновление отображения информации
+            function updateDisplays() {
+                levelDisplay.textContent = level;
+                scoreDisplay.textContent = score;
+                timeDisplay.textContent = timeLeft;
+            }
+            
+            // Завершение игры
+            function endGame() {
+                gameActive = false;
+                clearInterval(timer);
+                
+                colorCard.textContent = `Игра окончена! Ваш счет: ${score}`;
+                colorCard.style.color = 'var(--text)';
+                colorCard.classList.remove('pulse', 'shake');
+                
+                startBtn.textContent = 'Играть снова';
+                hintBtn.disabled = true;
+            }
+            
+            // Обработчики событий
+            startBtn.addEventListener('click', startGame);
+            hintBtn.addEventListener('click', showHint);
+            
+            // Адаптация к изменению размера экрана
+            window.addEventListener('resize', function() {
+                document.querySelectorAll('.bubble').forEach(bubble => bubble.remove());
+                createBubbles();
+            });
+            
+            // Создаем варианты цветов при загрузке
+            createColorOptions();
+        });
+    </script>
+</body>
+</html>
